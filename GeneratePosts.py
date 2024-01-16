@@ -8,7 +8,7 @@ from openai import OpenAI
 
 class QuoteImageGenerator:
     def __init__(self):
-        self.client = OpenAI(api_key="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")
+        self.client = OpenAI(api_key="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")
         self.font_path = "static/Raleway-Regular.ttf"
         self.font_size = 30
         self.v_margin = 10
@@ -35,32 +35,31 @@ class QuoteImageGenerator:
         )
 
         quotes_string = response.choices[0].message.content.strip()
-        # Extract the theme using regular expression
         
-        theme_pattern = re.compile(r'theme: (.*?)\n')
+        # Extract the theme using regular expression
+        theme_pattern = re.compile(r'theme:(.*?),', re.IGNORECASE)
         theme_match = theme_pattern.search(quotes_string)
-        theme = theme_match.group(1) if theme_match else None
+        theme = theme_match.group(1).strip() if theme_match else None
 
         # Define a regular expression pattern to match the quotes
-        quote_pattern = re.compile(r'quote\d+: "(.*?)"')
+        quote_pattern = re.compile(r'quote(.*)"')
         # Use the findall method to extract all matches
-        quotes = quote_pattern.findall(quotes_string)
+        result = quote_pattern.findall(quotes_string)
+        quotes= [s.split('"', 1)[1].strip() for s in result]
 
         # Define a regular expression to find the text after 'Hashtags:'
         hashtags_pattern = re.compile(r'Hashtags:(.*)\n')
         # Find the first match in the text
         hashtags = hashtags_pattern.search(quotes_string)
         hashtags = hashtags.group(1).strip()
-        
-        # Define a regular expression to find the text after 'Hashtags:'
+
+        # Define a regular expression to find the text after 'Search:'
         search_pattern = re.compile(r'Search:(.*)')
         # Find the first match in the text
         search = search_pattern.search(quotes_string)
         search = search.group(1).strip()
 
-        print(f"search keywords: {search}")
-
-        return {'theme': theme, 'quotes': quotes, 'hastags': hashtags, 'search': search}
+        return {'theme': theme, 'quotes': quotes, 'hashtags': hashtags, 'search': search}
 
     def get_y_and_heights(self, text_wrapped, dimensions):
         ascent, descent = self.font.getmetrics()
@@ -116,7 +115,7 @@ class QuoteImageGenerator:
         img.paste(foreground_image, (foreground_x, foreground_y), mask=foreground_image)
 
         print(f'Theme :{generated_content["theme"]}')
-        print(f'Hashtags :{generated_content["hastags"]}')
+        print(f'Hashtags :{generated_content["hashtags"]}')
 
         for index, quote_text in enumerate(generated_quotes):
             print(f'quote{index}: {quote_text}')

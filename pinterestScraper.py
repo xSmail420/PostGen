@@ -17,17 +17,23 @@ class ImgScraper :
         # add undetected_chromedriver here 
         self.driver = uc.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-    def getBgUrlByTheme(self, link):
+    def getBgUrlByTheme(self, link, options):
         try:
         
             # Go to the Instagram Direct Inbox
-            self.driver.get(f"{link}%20quote%20background%20image")
+            self.driver.get(f"{link}%20aesthetic%20background%20image")
 
             time.sleep(10)
             # Wait for the recipient input field to become available
             pin = self.driver.find_elements(By.CSS_SELECTOR, 'img')
-                    
-            image_url = pin[0].get_attribute('src')
+            
+            if options != 0:
+                for nb in range(options) :
+                    print(f"bg {nb} : {pin[nb].get_attribute('src')}")
+                choice = input("choose prefered bg index:")
+                image_url = pin[int(choice)].get_attribute('src')
+            else :
+                image_url = pin[0].get_attribute('src')
             time.sleep(3)
             
             url = image_url.replace("236x", "736x")
